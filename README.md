@@ -36,6 +36,7 @@ cat list-claimed.md
 ## Editing instructions & resources
 1. Identify a file to edit. Prefer later clips to earlier ones or w/e is of personal interest.
 2. Share your claim (file name, date, your name) so others don't edit the same file
+  
   a. First find your file name
   ```
   ls 008-gen-
