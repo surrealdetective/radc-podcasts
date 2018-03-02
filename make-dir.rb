@@ -15,11 +15,11 @@ class NewDirectoryMaker
 
   def make!
     make_new_directory!
-    make_raw_and_unedited_subdirectories!
+    make_raw_and_edited_subdirectories!
     puts "see your new directories:"
     puts "./meetings/#{meeting_name}"
     puts "./meetings/#{meeting_name}/raw"
-    puts "./meetings/#{meeting_name}/unedited"
+    puts "./meetings/#{meeting_name}/edited"
   end
 
   private
@@ -27,9 +27,9 @@ class NewDirectoryMaker
     Dir.mkdir "meetings/#{meeting_name}"
   end
 
-  def make_raw_and_unedited_subdirectories!
+  def make_raw_and_edited_subdirectories!
     Dir.mkdir "meetings/#{meeting_name}/raw"
-    Dir.mkdir "meetings/#{meeting_name}/unedited"
+    Dir.mkdir "meetings/#{meeting_name}/edited"
   end
 
   public 
@@ -57,6 +57,8 @@ class NewDirectoryMaker
       @folders ||= Dir['./meetings/*'].grep(/[.]\/meetings\/[0123456789]{3}-#{meeting_type}/)
     end
 
+    # refactor: switch to having one place to add new meeting types
+    # re-use here and in Asker
     def meeting_type
       @meeting_type ||= case meeting_num
         when 1 then 'gen'
