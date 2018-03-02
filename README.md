@@ -1,11 +1,11 @@
 # radc-podcasts
-Everything you need need to edit radc podcasts.
+Everything you need need to edit radc podcasts. To see how watch [this video walkthrough to see how this link](https://www.youtube.com/watch?v=ZRVyZOwHduk&feature=youtu.be&hd=1)
 
 ## Contents
 * See unedited audio clips
 * Identify what needs editing
 * Editing instructions & resources
-# Publishing instructions
+* Publishing instructions
 
 ## See unedited audio clips
 ```
