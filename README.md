@@ -57,3 +57,4 @@ cat list-claimed.md
 6. Export the audio file as an mp3 to the appropriate place: meetings/[meeting-folder]/edited/[001]-[your-description-of-the-file].mp3 (Important: remember to use the 001 convention. You can call the file w/e you like, but the num is used to update what needs to be edited. Please rename any files that don't match this convention if you come across them)
 7. Edit list-claimed.md so that you remove your claim.
 ## Publishing instructions
+1. Edit by following our [podcast editor instructions here](https://www.youtube.com/playlist?list=PLBDmNvFIcqjIHj3B-vULH--no07QzqfT3)
