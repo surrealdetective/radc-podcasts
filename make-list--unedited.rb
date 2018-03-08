@@ -1,4 +1,4 @@
-MP3 = Struct.new(:string) do
+MP3 = Struct.new(:file_location) do
   def ==(other)
     self.to_s === other.to_s
   end
@@ -18,15 +18,15 @@ MP3 = Struct.new(:string) do
   private
 
   def _mp3_file_num
-    /[.]\/meetings\/.*\/[0123456789]{3}/.match(string).to_s[-4..-1]
+    /[.]\/meetings\/.*\/[0123456789]{3}/.match(file_location).to_s[-4..-1]
   end
 
   def _folder_name_location
-    /[.]\/meetings\/[^\/]*\//.match(string).to_s
+    /[.]\/meetings\/[^\/]*\//.match(file_location).to_s
   end
 
   def edited
-    @edited
+    @edited ||= false
   end
 end
 
@@ -35,9 +35,6 @@ MP3FileFinder = Struct.new(:folder_location) do
     Dir[folder_location].map {|file| MP3.new(file) }
   end
 end
-
-edited_mp3_files = MP3FileFinder.new('./meetings/*/edited/*').run 
-raw_mp3_files    = MP3FileFinder.new('./meetings/*/raw/*').run
 
 MP3UneditedStatusSelector = Struct.new(:raw_files, :edited_files) do
   def run
@@ -52,21 +49,34 @@ MP3UneditedStatusSelector = Struct.new(:raw_files, :edited_files) do
   end
 end
 
-unedited = MP3UneditedStatusSelector.new(raw_mp3_files, edited_mp3_files).run
-
-# Write list--unedited.md
-File.open('list--unedited.md', 'w') do |f|
-  unedited.each do |mp3|
-    f.write(mp3.string)
-    f.write("\n")
+ListWriter = Struct.new(:files, :list_location, :writer_logic) do
+  def run!
+    File.open(list_location, 'w') do |f|
+      files.each do |mp3|
+        writer_logic.write(f, mp3.file_location, mp3.edited?)
+      end
+    end
   end
 end
 
-# Write list--all.md
-File.open('list--all.md', 'w') do |f|
-  raw_mp3_files.each do |mp3|
-    mp3.edited? ? f.write("[x] ") : f.write("[ ] ")
-    f.write(mp3.string)
+class PlainLineLogic
+  def write(f, content, status=nil)
+    write_pre_content(f, status)    
+    f.write(content)
     f.write("\n")
   end
+
+  def write_pre_content(f, status); nil; end
 end
+
+class ChecklistLineLogic < PlainLineLogic
+  def write_pre_content(f, status)
+    f.write(status ? '[x] ' : '[ ] ')
+  end
+end
+
+edited_mp3_files   = MP3FileFinder.new('./meetings/*/edited/*').run 
+raw_mp3_files      = MP3FileFinder.new('./meetings/*/raw/*').run
+unedited_mp3_files = MP3UneditedStatusSelector.new(raw_mp3_files, edited_mp3_files).run
+ListWriter.new(unedited_mp3_files, 'list--unedited.md', PlainLineLogic.new).run!
+ListWriter.new(raw_mp3_files, 'list--all.md', ChecklistLineLogic.new).run!
