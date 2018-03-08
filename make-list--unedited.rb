@@ -1,4 +1,10 @@
-MP3 = Struct.new(:file_location) do
+class MP3
+  attr_reader :file_location
+
+  def initialize(file_location, args={})
+    @file_location = file_location.to_s
+  end
+
   def ==(other)
     self.to_s === other.to_s
   end
@@ -49,34 +55,54 @@ MP3UneditedStatusSelector = Struct.new(:raw_files, :edited_files) do
   end
 end
 
-ListWriter = Struct.new(:files, :list_location, :writer_logic) do
-  def run!
-    File.open(list_location, 'w') do |f|
-      files.each do |mp3|
-        writer_logic.write(f, mp3.file_location, mp3.edited?)
-      end
-    end
-  end
-end
-
 class PlainLineLogic
-  def write(f, content, status=nil)
-    write_pre_content(f, status)    
+  def write(f, content, options={})
+    write_pre_content(f, options)
     f.write(content)
-    f.write("\n")
+    write_post_content(f, options)
   end
 
-  def write_pre_content(f, status); nil; end
+  def write_pre_content(f, options); nil; end
+  def write_post_content(f, options); f.write("\n") end
 end
 
 class ChecklistLineLogic < PlainLineLogic
-  def write_pre_content(f, status)
-    f.write(status ? '[x] ' : '[ ] ')
+  def write_pre_content(f, options)
+    f.write(options[:needs_check] ? '[x] ' : '[ ] ')
+  end
+end
+
+class ListWriter
+  attr_reader :files, :list_location, :writer_logic
+
+  def initialize(args={})
+    @files         = Array(args[:files])
+    @list_location = args[:list_location].to_s
+    @writer_logic  = args.fetch(:writer_logic, PlainLineLogic.new)
+  end
+
+  def run!
+    File.open(list_location, 'w') do |f|
+      files.each do |mp3|
+        writer_logic.write(f, mp3.file_location, {needs_check: mp3.edited?})
+      end
+    end    
   end
 end
 
 edited_mp3_files   = MP3FileFinder.new('./meetings/*/edited/*').run 
 raw_mp3_files      = MP3FileFinder.new('./meetings/*/raw/*').run
-unedited_mp3_files = MP3UneditedStatusSelector.new(raw_mp3_files, edited_mp3_files).run
-ListWriter.new(unedited_mp3_files, 'list--unedited.md', PlainLineLogic.new).run!
-ListWriter.new(raw_mp3_files, 'list--all.md', ChecklistLineLogic.new).run!
+unedited_mp3_files = MP3UneditedStatusSelector.new(
+  raw_mp3_files, 
+  edited_mp3_files
+).run
+ListWriter.new(
+  files: unedited_mp3_files, 
+  list_location: 'list--unedited.md', 
+  writer_logic: PlainLineLogic.new
+).run!
+ListWriter.new(
+  files: raw_mp3_files, 
+  list_location: 'list--all.md', 
+  writer_logic: ChecklistLineLogic.new
+).run!
