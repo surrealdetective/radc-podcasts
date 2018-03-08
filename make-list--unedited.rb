@@ -4,7 +4,7 @@ MP3 = Struct.new(:string) do
   end
 
   def to_s
-    "#{_folder_name_location} #{_mp3_file_num}"
+    "@#{_folder_name_location}, #:#{_mp3_file_num}"
   end
 
   def mark_as_edited!
@@ -30,17 +30,29 @@ MP3 = Struct.new(:string) do
   end
 end
 
-# Create list of files
-edited   = Dir['./meetings/*/edited/*'].map {|file| MP3.new(file) }
-raw      = Dir['./meetings/*/raw/*'].map {|file| MP3.new(file) }
-unedited = raw.select do |raw_mp3| 
-            if !edited.include?(raw_mp3)
-              true # as in yes, this is unedited
-            else
-              raw_mp3.mark_as_edited!
-              false
-            end
-           end 
+MP3FileFinder = Struct.new(:folder_location) do
+  def run
+    Dir[folder_location].map {|file| MP3.new(file) }
+  end
+end
+
+edited_mp3_files = MP3FileFinder.new('./meetings/*/edited/*').run 
+raw_mp3_files    = MP3FileFinder.new('./meetings/*/raw/*').run
+
+MP3UneditedStatusSelector = Struct.new(:raw_files, :edited_files) do
+  def run
+    raw_files.select do |raw_mp3| 
+      if !edited_files.include?(raw_mp3)
+        true # as in yes, this is unedited
+      else
+        raw_mp3.mark_as_edited!
+        false
+      end
+   end 
+  end
+end
+
+unedited = MP3UneditedStatusSelector.new(raw_mp3_files, edited_mp3_files).run
 
 # Write list--unedited.md
 File.open('list--unedited.md', 'w') do |f|
@@ -52,7 +64,7 @@ end
 
 # Write list--all.md
 File.open('list--all.md', 'w') do |f|
-  raw.each do |mp3|
+  raw_mp3_files.each do |mp3|
     mp3.edited? ? f.write("[x] ") : f.write("[ ] ")
     f.write(mp3.string)
     f.write("\n")
