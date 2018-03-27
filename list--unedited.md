@@ -22,3 +22,7 @@
 ./meetings/011-gen-filipinx-and-hawaii-colonial-history-for-solidarity/raw/002-discussion.3gp
 ./meetings/012-gen-interpersonal-is-political-indigenous-soveriengty/raw/001-recap.m4a
 ./meetings/012-gen-interpersonal-is-political-indigenous-soveriengty/raw/002-platforms-for-soverignty-and-solidarity.m4a
+./meetings/013-gen-filipino-settler-colonialism-in-hawaii/raw/002-what-words-mask-imperialism-and-how-to-resist-assimilation.3gp
+./meetings/014-gen-intamacies-of-other-humanities-hidden-by-history/raw/001-intimacy-of-other-humanities.wav
+./meetings/014-gen-intamacies-of-other-humanities-hidden-by-history/raw/002-how-do-we-erase-history-as-chinese-americans.wav
+./meetings/014-gen-intamacies-of-other-humanities-hidden-by-history/raw/003-how-do-asian-americans-act-as-colonial-fantasy.wav
